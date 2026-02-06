@@ -11,6 +11,9 @@ const TARGET_URL =
 // Discord 웹훅 URL (GitHub Secrets에서 주입)
 const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
+// 워크플로우 타입 (workflow_dispatch = 수동, schedule = 자동)
+const WORKFLOW_TYPE = process.env.WORKFLOW_TYPE;
+
 // ── 타입 정의 ─────────────────────────────────────
 interface Performance {
   Title: string;
@@ -45,22 +48,41 @@ async function main() {
     KEYWORDS.some((keyword) => p.Title.includes(keyword))
   );
 
-  if (found.length === 0) {
+  // 4. 수동 실행 vs 자동 실행 분기
+  const isManualRun = WORKFLOW_TYPE === "workflow_dispatch";
+
+  if (found.length === 0 && !isManualRun) {
     console.log(`🔍 키워드 [${KEYWORDS.join(", ")}]에 해당하는 공연이 없습니다.`);
     return;
   }
 
-  // 4. 발견 시 Discord 알림
-  console.log(`🎯 ${found.length}개 공연 발견!`);
+  // 5. Discord 알림 메시지 생성
+  let message: string;
 
-  const message = [
-    "🎵 **부산콘서트홀 공연 알림**",
-    "",
-    ...found.map(
-      (p) =>
-        `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🎫 ${p.SaleStatus}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
-    ),
-  ].join("\n");
+  if (found.length > 0) {
+    console.log(`🎯 ${found.length}개 공연 발견!`);
+    message = [
+      "🎵 **부산콘서트홀 공연 알림**",
+      "",
+      ...found.map(
+        (p) =>
+          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🎫 ${p.SaleStatus}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
+      ),
+    ].join("\n");
+  } else {
+    // 수동 실행 & 매칭 없음: 전체 공연 목록 전송
+    console.log(`📋 수동 실행 - 전체 ${performances.length}개 공연 목록 전송`);
+    message = [
+      "📋 **부산콘서트홀 전체 공연 목록** (수동 조회)",
+      "",
+      `키워드: [${KEYWORDS.join(", ")}] - 매칭 없음`,
+      "",
+      ...performances.map(
+        (p) =>
+          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🎫 ${p.SaleStatus}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
+      ),
+    ].join("\n");
+  }
 
   if (!WEBHOOK_URL) {
     console.log("⚠️ DISCORD_WEBHOOK_URL이 설정되지 않았습니다. 메시지 내용:");

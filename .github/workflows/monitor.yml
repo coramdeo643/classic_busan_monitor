@@ -21,3 +21,4 @@ jobs:
       - run: npm run check
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          WORKFLOW_TYPE: ${{ github.event_name }}
