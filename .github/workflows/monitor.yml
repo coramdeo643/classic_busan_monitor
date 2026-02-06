@@ -1,0 +1,23 @@
+name: Monitor Busan Concert Hall
+
+on:
+  schedule:
+    # 매일 한국시간 오전 8시 실행 (UTC 23시 = KST 08시)
+    - cron: '0 23 * * *'
+  workflow_dispatch: # GitHub Actions 탭에서 수동 실행 가능
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm install
+
+      - run: npm run check
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
