@@ -2,8 +2,12 @@ name: Monitor Busan Concert Hall
 
 on:
   schedule:
-    # 매일 한국시간 오전 8시 실행 (UTC 23시 = KST 08시)
-    - cron: '0 23 * * *'
+    # 매일 한국시간 오전 9시 실행 (UTC 0시 = KST 09시)
+    - cron: '0 0 * * *'
+    # 매일 한국시간 오후 3시 실행 (UTC 6시 = KST 15시)
+    - cron: '0 6 * * *'
+    # 매일 한국시간 오후 9시 실행 (UTC 12시 = KST 21시)
+    - cron: '0 12 * * *'
   workflow_dispatch: # GitHub Actions 탭에서 수동 실행 가능
 
 jobs:
