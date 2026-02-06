@@ -9,19 +9,19 @@
 
 | # | 작업 | 상태 |
 |---|------|------|
-| 1 | [Git 저장소 초기화](#1-git-저장소-초기화) | :white_check_mark: 완료 |
-| 2 | [npm 프로젝트 초기화](#2-npm-프로젝트-초기화-packagejson) | :white_check_mark: 완료 |
-| 3 | [의존성 패키지 설치](#3-의존성-패키지-설치) | :white_check_mark: 완료 |
-| 4 | [TypeScript 설정](#4-typescript-설정-tsconfigjson) | :white_check_mark: 완료 |
-| 5 | [.gitignore 설정](#5-gitignore-설정) | :white_check_mark: 완료 |
-| 6 | [모니터링 스크립트 작성](#6-모니터링-스크립트-작성-srccheccts) | :white_check_mark: 완료 |
-| 7 | [로컬 테스트 실행](#7-로컬-테스트-실행) | :white_check_mark: 완료 |
-| 8 | [GitHub Actions 워크플로우 작성](#8-github-actions-워크플로우-작성) | :white_check_mark: 완료 |
-| 9 | [GitHub CLI 설치 및 로그인](#9-github-cli-설치-및-로그인) | :white_check_mark: 완료 |
-| 10 | [GitHub 레포지토리 생성 및 Push](#10-github-레포지토리-생성-및-push) | :black_square_button: 진행 전 |
-| 11 | [Discord 웹훅 생성](#11-discord-웹훅-생성) | :black_square_button: 진행 전 |
-| 12 | [GitHub Secrets 설정](#12-github-secrets-설정) | :black_square_button: 진행 전 |
-| 13 | [GitHub Actions 수동 실행으로 최종 테스트](#13-github-actions-수동-실행으로-최종-테스트) | :black_square_button: 진행 전 |
+| 1 | [Git 저장소 초기화](#1-git-저장소-초기화) | ✅ 완료 |
+| 2 | [npm 프로젝트 초기화](#2-npm-프로젝트-초기화-packagejson) | ✅ 완료 |
+| 3 | [의존성 패키지 설치](#3-의존성-패키지-설치) | ✅ 완료 |
+| 4 | [TypeScript 설정](#4-typescript-설정-tsconfigjson) | ✅ 완료 |
+| 5 | [.gitignore 설정](#5-gitignore-설정) | ✅ 완료 |
+| 6 | [모니터링 스크립트 작성](#6-모니터링-스크립트-작성-srccheccts) | ✅ 완료 |
+| 7 | [로컬 테스트 실행](#7-로컬-테스트-실행) | ✅ 완료 |
+| 8 | [GitHub Actions 워크플로우 작성](#8-github-actions-워크플로우-작성) | ✅ 완료 |
+| 9 | [GitHub CLI 설치 및 로그인](#9-github-cli-설치-및-로그인) | ✅ 완료 |
+| 10 | [GitHub 레포지토리 생성 및 Push](#10-github-레포지토리-생성-및-push) | ✅ 완료 |
+| 11 | [Discord 웹훅 생성](#11-discord-웹훅-생성) | ✅ 완료 |
+| 12 | [GitHub Secrets 설정](#12-github-secrets-설정) | ✅ 완료 |
+| 13 | [GitHub Actions 수동 실행으로 최종 테스트](#13-github-actions-수동-실행으로-최종-테스트) | ✅ 완료 |
 
 ---
 
@@ -310,33 +310,135 @@ GitHub CLI(`gh`)는 터미널에서 GitHub을 조작할 수 있게 해주는 공
 
 ## 10. GitHub 레포지토리 생성 및 Push
 
-> :black_square_button: **아직 진행 전**
+**실행한 명령어:**
+```bash
+# 1. 파일 스테이징
+git add .github/ .gitignore docs/ package.json package-lock.json src/ tsconfig.json
 
-레포지토리를 만들고 코드를 업로드하는 단계입니다.
+# 2. 첫 커밋 생성
+git commit -m "feat: 부산콘서트홀 공연 모니터링 초기 세팅
+
+- 모니터링 스크립트 (src/check.ts): 부산콘서트홀 공연 목록에서 키워드 매칭 후 Discord 알림
+- GitHub Actions 워크플로우: 매일 KST 08시 자동 실행
+- 프로젝트 설정: TypeScript, axios, cheerio
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+
+# 3. GitHub 레포 생성 및 push (한 번에!)
+gh repo create classic_busan_monitor --public --source=. --push --remote=origin
+```
+
+**이게 뭔가요?**
+
+`gh repo create`는 GitHub CLI의 레포지토리 생성 명령어입니다. 여러 옵션을 조합하면 **레포 생성 + 코드 push까지 한 번에** 처리할 수 있습니다.
+
+**각 옵션 설명:**
+
+| 옵션 | 설명 |
+|------|------|
+| `classic_busan_monitor` | 레포지토리 이름 |
+| `--public` | 공개 레포로 생성 (`--private`로 하면 비공개) |
+| `--source=.` | 현재 디렉토리의 코드를 업로드 |
+| `--push` | 자동으로 `git push` 실행 |
+| `--remote=origin` | 리모트 이름을 `origin`으로 설정 |
+
+**실행 결과:**
+```
+https://github.com/coramdeo643/classic_busan_monitor
+branch 'main' set up to track 'origin/main'.
+```
+
+레포지토리가 생성되고, 첫 커밋이 자동으로 push되었습니다.
 
 ---
 
 ## 11. Discord 웹훅 생성
 
-> :black_square_button: **아직 진행 전**
+**Discord에서 웹훅 URL 만드는 방법:**
 
-Discord 서버에서 웹훅 URL을 만드는 단계입니다.
+1. Discord 앱에서 **알림 받을 채널** 선택
+2. 채널 우클릭 → **채널 편집** → **연동** 탭
+3. **웹후크** 섹션에서 **새 웹후크** 클릭
+4. 웹훅 이름 지정 (예: `부산콘서트홀 알림`)
+5. **웹후크 URL 복사** 버튼 클릭
+
+복사한 URL은 `https://discord.com/api/webhooks/xxxxx/yyyyy` 형태입니다.
+
+> **주의:** 이 URL은 누구나 메시지를 보낼 수 있는 비밀번호 같은 것이므로, 절대 공개하지 마세요!
 
 ---
 
 ## 12. GitHub Secrets 설정
 
-> :black_square_button: **아직 진행 전**
+**실행한 명령어:**
+```bash
+gh secret set DISCORD_WEBHOOK_URL
+```
 
-Discord 웹훅 URL을 GitHub에 안전하게 저장하는 단계입니다.
+실행하면 웹훅 URL을 입력하라는 프롬프트가 나옵니다. Discord에서 복사한 URL을 붙여넣으면 됩니다.
+
+**이게 뭔가요?**
+
+`gh secret set`은 GitHub 레포지토리의 Secrets에 비밀값을 저장하는 명령어입니다.
+
+**Secrets란?**
+- GitHub Actions에서 사용할 수 있는 암호화된 환경변수
+- 레포지토리 Settings > Secrets and variables > Actions에서 웹 UI로도 관리 가능
+- Public 레포에서도 값이 노출되지 않음 (로그에 `***`으로 마스킹됨)
+
+**다른 유용한 gh secret 명령어:**
+
+```bash
+# Secrets 목록 보기
+gh secret list
+
+# Secret 삭제
+gh secret remove DISCORD_WEBHOOK_URL
+
+# Secret 값 확인 (불가능 - 보안상 읽기 불가)
+# 한 번 저장하면 값을 다시 볼 수 없고, 덮어쓰기만 가능
+```
 
 ---
 
 ## 13. GitHub Actions 수동 실행으로 최종 테스트
 
-> :black_square_button: **아직 진행 전**
+**실행한 명령어:**
+```bash
+# 1. 워크플로우 수동 실행
+gh workflow run monitor.yml
 
-모든 설정이 끝난 후, GitHub Actions 탭에서 수동으로 워크플로우를 실행하여 전체 동작을 검증하는 단계입니다.
+# 2. 실행 상태 확인
+gh run list --limit 1
+
+# 3. 실행 로그 보기 (run ID는 위에서 확인)
+gh run view 21751767631 --log
+```
+
+**이게 뭔가요?**
+
+GitHub Actions는 cron 스케줄로 자동 실행되지만, `workflow_dispatch` 트리거를 추가하면 수동으로도 실행할 수 있습니다.
+
+**각 명령어 설명:**
+
+| 명령어 | 설명 |
+|--------|------|
+| `gh workflow run` | 워크플로우를 수동으로 실행 |
+| `gh run list` | 최근 실행 기록 조회 |
+| `gh run view --log` | 특정 실행의 전체 로그 출력 |
+| `gh run watch` | 실행 중인 워크플로우를 실시간으로 추적 |
+
+**실행 결과:**
+```
+📡 부산콘서트홀 페이지 요청 중...
+📋 총 7개 공연 확인
+  1. LA POEM SYMPHONY : ALIVE in Busan | 2026.02.07(토) - 2026.02.08(일) | 콘서트홀
+  2. 안드라스 쉬프 피아노 리사이틀 - 부산 | 2026.03.13(금) | 콘서트홀
+  ... (중략)
+🔍 키워드 [양인모]에 해당하는 공연이 없습니다.
+```
+
+워크플로우가 성공적으로 실행되었고, 모든 공연 목록도 정상적으로 출력되었습니다!
 
 ---
 
@@ -356,4 +458,137 @@ classic_busan_monitor/
 ├── package.json             ← npm 프로젝트 설정 & 의존성 목록
 ├── package-lock.json        ← 의존성 정확한 버전 잠금 파일
 └── tsconfig.json            ← TypeScript 컴파일러 설정
+```
+
+---
+
+## GitHub CLI (`gh`) 명령어 치트시트
+
+### 인증 관련
+```bash
+# GitHub 로그인 (브라우저 인증)
+gh auth login
+
+# 로그인 상태 확인
+gh auth status
+
+# 로그아웃
+gh auth logout
+```
+
+### 레포지토리 관련
+```bash
+# 레포 생성 (public + 코드 push 한 번에)
+gh repo create <레포명> --public --source=. --push
+
+# 레포 생성 (private)
+gh repo create <레포명> --private --source=. --push
+
+# 레포 정보 보기
+gh repo view
+
+# 레포 웹에서 열기
+gh repo view --web
+```
+
+### GitHub Actions 관련
+```bash
+# 워크플로우 목록 보기
+gh workflow list
+
+# 워크플로우 수동 실행
+gh workflow run <워크플로우명>
+
+# 실행 기록 조회 (최근 10개)
+gh run list
+
+# 실행 기록 조회 (최근 N개)
+gh run list --limit 5
+
+# 특정 실행의 로그 보기
+gh run view <run-id> --log
+
+# 실행 중인 워크플로우 실시간 추적
+gh run watch
+```
+
+### Secrets 관련
+```bash
+# Secret 추가 (입력 프롬프트)
+gh secret set <SECRET_NAME>
+
+# Secret 추가 (파일에서 읽기)
+gh secret set <SECRET_NAME> < secret.txt
+
+# Secret 목록 보기
+gh secret list
+
+# Secret 삭제
+gh secret remove <SECRET_NAME>
+```
+
+### Pull Request 관련
+```bash
+# PR 생성 (현재 브랜치 → main)
+gh pr create --title "제목" --body "설명"
+
+# PR 목록 보기
+gh pr list
+
+# PR 보기
+gh pr view <PR번호>
+
+# PR 머지
+gh pr merge <PR번호>
+```
+
+### Issue 관련
+```bash
+# Issue 생성
+gh issue create --title "제목" --body "설명"
+
+# Issue 목록 보기
+gh issue list
+
+# Issue 보기
+gh issue view <Issue번호>
+
+# Issue 닫기
+gh issue close <Issue번호>
+```
+
+### 기타 유용한 명령어
+```bash
+# GitHub에서 레포 브라우저로 열기
+gh browse
+
+# 로컬에 레포 클론
+gh repo clone <사용자명>/<레포명>
+
+# 도움말 보기
+gh help
+
+# 특정 명령어 도움말
+gh <명령어> --help
+```
+
+---
+
+## 프로젝트 완성 🎉
+
+**레포지토리:** https://github.com/coramdeo643/classic_busan_monitor
+
+**자동 실행 스케줄:** 매일 한국시간 오전 8시
+
+**모니터링 키워드:** `양인모`
+
+**키워드 추가 방법:**
+1. `src/check.ts` 파일의 5번 줄 수정
+2. `const KEYWORDS = ["양인모", "조성진"];` 처럼 배열에 추가
+3. 커밋 & push
+
+```bash
+git add src/check.ts
+git commit -m "feat: 모니터링 키워드 추가"
+git push
 ```
