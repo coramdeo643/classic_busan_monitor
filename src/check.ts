@@ -66,20 +66,20 @@ async function main() {
       "",
       ...found.map(
         (p) =>
-          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🎫 ${p.SaleStatus}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
+          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
       ),
     ].join("\n");
   } else {
     // 수동 실행 & 매칭 없음: 전체 공연 목록 전송
     console.log(`📋 수동 실행 - 전체 ${performances.length}개 공연 목록 전송`);
     message = [
-      "📋 **부산콘서트홀 전체 공연 목록** (수동 조회)",
+      "📋 **부산콘서트홀 전체 공연 목록**",
       "",
       `키워드: [${KEYWORDS.join(", ")}] - 매칭 없음`,
       "",
       ...performances.map(
         (p) =>
-          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🎫 ${p.SaleStatus}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
+          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n`
       ),
     ].join("\n");
   }
