@@ -59,11 +59,9 @@ async function checkWatchPerformances() {
     console.log(`[INFO] 확정된 항목: ${confirmed.map((d) => d.Name).join(", ") || "없음"}`);
     console.log(`[INFO] 미정 항목: ${pending.map((d) => d.Name).join(", ") || "없음"}`);
 
-    const keyFields = ["가격", "러닝타임", "인터미션"];
-    const newlyConfirmed = confirmed.filter((d) => keyFields.includes(d.Name));
-
-    if (newlyConfirmed.length === 0) {
-      console.log(`[INFO] ${target.name} - 아직 핵심 항목이 미정입니다.`);
+    const priceItem = descriptions.find((d) => d.Name === "가격");
+    if (!priceItem || priceItem.Value === "미정") {
+      console.log(`[INFO] ${target.name} - 가격이 아직 미정입니다.`);
       continue;
     }
 
@@ -72,10 +70,7 @@ async function checkWatchPerformances() {
       .join("\n");
 
     const message = [
-      `**[업데이트] ${target.name}**`,
-      "",
-      `**확정된 항목:**`,
-      ...newlyConfirmed.map((d) => `  - ${d.Name}: **${d.Value}**`),
+      `**[예매 오픈 임박] ${target.name}**`,
       "",
       `**전체 공연 정보:**`,
       allRows,
