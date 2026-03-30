@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s \"https://classicbusan.busan.go.kr/product/ko/performance/253100\")",
+      "Read(//tmp/**)",
+      "WebFetch(domain:classicbusan.busan.go.kr)"
+    ]
+  }
+}

@@ -1,100 +1,98 @@
 import axios from "axios";
 
 // ── 설정 ──────────────────────────────────────────
-// 모니터링할 아티스트 키워드 목록 (여기에 추가하면 됩니다)
-const KEYWORDS = ["양인모"];
-
-// 부산콘서트홀 공연 목록 페이지
-const TARGET_URL =
-  "https://classicbusan.busan.go.kr/product/ko/performance";
+// 상세 내용이 미정인 공연 모니터링 목록
+// 가격/러닝타임 등 핵심 항목이 확정되면 Discord 알림
+const WATCH_PERFORMANCES = [
+  {
+    id: 253100,
+    name: "피아니스트 조성진 체임버 콘서트",
+    url: "https://classicbusan.busan.go.kr/product/ko/performance/253100",
+  },
+  {
+    id: 253106,
+    name: "부산콘서트홀 개관1주년 페스티벌 말러 교향곡 5번",
+    url: "https://classicbusan.busan.go.kr/product/ko/performance/253106",
+  },
+];
 
 // Discord 웹훅 URL (GitHub Secrets에서 주입)
 const WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
-// 워크플로우 타입 (workflow_dispatch = 수동, schedule = 자동)
-const WORKFLOW_TYPE = process.env.WORKFLOW_TYPE;
-
 // ── 타입 정의 ─────────────────────────────────────
-interface Performance {
-  Title: string;
-  PlayPeriod: string;
-  VenueName: string;
-  GenreName: string;
-  SaleStatus: string;
-  LinkUrl: string;
+interface Description {
+  Name: string;
+  Value: string;
 }
 
-// ── 메인 로직 ─────────────────────────────────────
-async function main() {
-  // 1. 페이지 소스 가져오기
-  console.log("📡 부산콘서트홀 페이지 요청 중...");
-  const { data: html } = await axios.get<string>(TARGET_URL);
-
-  // 2. Performances 배열 추출 (페이지 소스의 JS 데이터에서 정규식으로 파싱)
-  const match = html.match(/"Performances"\s*:\s*(\[[\s\S]*?\])\s*,\s*"/);
-  if (!match) {
-    console.log("⚠️ Performances 데이터를 찾을 수 없습니다. 사이트 구조가 변경되었을 수 있습니다.");
-    return;
-  }
-
-  const performances: Performance[] = JSON.parse(match[1]);
-  console.log(`📋 총 ${performances.length}개 공연 확인`);
-  performances.forEach((p, i) => {
-    console.log(`  ${i + 1}. ${p.Title} | ${p.PlayPeriod} | ${p.VenueName}`);
-  });
-
-  // 3. 키워드 매칭
-  const found = performances.filter((p) =>
-    KEYWORDS.some((keyword) => p.Title.includes(keyword))
-  );
-
-  // 4. 수동 실행 vs 자동 실행 분기
-  const isManualRun = WORKFLOW_TYPE === "workflow_dispatch";
-
-  if (found.length === 0 && !isManualRun) {
-    console.log(`🔍 키워드 [${KEYWORDS.join(", ")}]에 해당하는 공연이 없습니다.`);
-    return;
-  }
-
-  // 5. Discord 알림 메시지 생성
-  let message: string;
-
-  if (found.length > 0) {
-    console.log(`🎯 ${found.length}개 공연 발견!`);
-    message = [
-      "🎵 **부산콘서트홀 공연 알림**",
-      "",
-      ...found.map(
-        (p) =>
-          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n🔗 https://classicbusan.busan.go.kr${p.LinkUrl}`
-      ),
-    ].join("\n");
-  } else {
-    // 수동 실행 & 매칭 없음: 전체 공연 목록 전송
-    console.log(`📋 수동 실행 - 전체 ${performances.length}개 공연 목록 전송`);
-    message = [
-      "📋 **부산콘서트홀 전체 공연 목록**",
-      "",
-      `키워드: [${KEYWORDS.join(", ")}] - 매칭 없음`,
-      "",
-      ...performances.map(
-        (p) =>
-          `**${p.Title}**\n📅 ${p.PlayPeriod}\n📍 ${p.VenueName}\n`
-      ),
-    ].join("\n");
-  }
-
+// ── 알림 전송 ─────────────────────────────────────
+async function sendDiscord(message: string) {
   if (!WEBHOOK_URL) {
-    console.log("⚠️ DISCORD_WEBHOOK_URL이 설정되지 않았습니다. 메시지 내용:");
+    console.log("[WARN] DISCORD_WEBHOOK_URL이 설정되지 않았습니다. 메시지 내용:");
     console.log(message);
     return;
   }
-
   await axios.post(WEBHOOK_URL, { content: message });
-  console.log("✅ Discord 알림 전송 완료!");
+  console.log("[OK] Discord 알림 전송 완료");
+}
+
+// ── 미정 공연 상세 감시 ────────────────────────────
+async function checkWatchPerformances() {
+  for (const target of WATCH_PERFORMANCES) {
+    console.log(`[INFO] 상세 감시 중: ${target.name}`);
+
+    const { data: html } = await axios.get<string>(target.url);
+
+    const match = html.match(/"Descriptions"\s*:\s*(\[[\s\S]*?\])\s*,\s*"Details"/);
+    if (!match) {
+      console.log(`[WARN] ${target.name} - Descriptions 파싱 실패. 사이트 구조 확인 필요`);
+      continue;
+    }
+
+    const descriptions: Description[] = JSON.parse(match[1]);
+
+    const confirmed = descriptions.filter(
+      (d) => d.Value && d.Value !== "미정" && d.Value.trim() !== ""
+    );
+    const pending = descriptions.filter((d) => d.Value === "미정");
+
+    console.log(`[INFO] 확정된 항목: ${confirmed.map((d) => d.Name).join(", ") || "없음"}`);
+    console.log(`[INFO] 미정 항목: ${pending.map((d) => d.Name).join(", ") || "없음"}`);
+
+    const keyFields = ["가격", "러닝타임", "인터미션"];
+    const newlyConfirmed = confirmed.filter((d) => keyFields.includes(d.Name));
+
+    if (newlyConfirmed.length === 0) {
+      console.log(`[INFO] ${target.name} - 아직 핵심 항목이 미정입니다.`);
+      continue;
+    }
+
+    const allRows = descriptions
+      .map((d) => `  ${d.Name}: ${d.Value}`)
+      .join("\n");
+
+    const message = [
+      `**[업데이트] ${target.name}**`,
+      "",
+      `**확정된 항목:**`,
+      ...newlyConfirmed.map((d) => `  - ${d.Name}: **${d.Value}**`),
+      "",
+      `**전체 공연 정보:**`,
+      allRows,
+      "",
+      `https://classicbusan.busan.go.kr/product/ko/performance/${target.id}`,
+    ].join("\n");
+
+    await sendDiscord(message);
+  }
+}
+
+// ── 메인 ──────────────────────────────────────────
+async function main() {
+  await checkWatchPerformances();
 }
 
 main().catch((error) => {
-  console.error("❌ 에러 발생:", error.message);
+  console.error("[ERROR]", error.message);
   process.exit(1);
 });
