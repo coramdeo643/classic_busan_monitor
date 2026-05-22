@@ -9,11 +9,6 @@ const WATCH_PERFORMANCES = [
     name: "피아니스트 조성진 체임버 콘서트",
     url: "https://classicbusan.busan.go.kr/product/ko/performance/253100",
   },
-  {
-    id: 253106,
-    name: "부산콘서트홀 개관1주년 페스티벌 말러 교향곡 5번",
-    url: "https://classicbusan.busan.go.kr/product/ko/performance/253106",
-  },
 ];
 
 // Discord 웹훅 URL (GitHub Secrets에서 주입)
